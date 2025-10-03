@@ -201,83 +201,110 @@ li { margin-bottom: 0.7em; font-size: 1.1em; }
     </div>
 
         <script>
-    document.addEventListener('DOMContentLoaded', async function() {
-    const loadingState = document.getElementById('loadingState');
-    const resultsContainer = document.getElementById('resultsContainer');
+   
+    // This function will be called by the button's onclick attribute.
+    function copyImprovedResume() {
+        const textarea = document.getElementById('improvedResumeOutput');
+        if (!textarea) return;
 
-    // LocalStorage থেকে ডাটা পড়া
-    const resume = localStorage.getItem('resume');
-    const jd = localStorage.getItem('jobDescription');
-
-    if (!resume || !jd) {
-        loadingState.style.display = 'none';
-        resultsContainer.style.display = 'block';
-        resultsContainer.innerHTML = '<div style="color:red;">রিজিউম বা জব ডিসক্রিপশন পাওয়া যায়নি।</div>';
-        return;
-    }
-
-    // Loading দেখান
-    loadingState.style.display = 'block';
-    resultsContainer.style.display = 'none';
-
-    try {
-        const response = await fetch('/api/analyze', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ resume, jobDescription: jd })
-        });
-
-        const responseText = await response.text();
-
-        if (!response.ok) {
-            let errorMsg = 'সার্ভারে সমস্যা হয়েছে।';
-            try {
-                const errorJson = JSON.parse(responseText);
-                errorMsg = errorJson.error || errorMsg;
-            } catch (e) {
-                errorMsg = responseText || errorMsg;
+        // Modern and more reliable way to copy to clipboard
+        navigator.clipboard.writeText(textarea.value).then(() => {
+            const copyMessage = document.getElementById('copyMessage');
+            if(copyMessage) {
+                copyMessage.style.display = 'inline';
+                setTimeout(() => { copyMessage.style.display = 'none'; }, 2000);
             }
-            throw new Error(errorMsg);
-        }
-
-        const apiResponse = JSON.parse(responseText);
-
-        loadingState.style.display = 'none';
-        resultsContainer.style.display = 'block';
-
-        let analysisHTML = apiResponse.analysis
-            .replace(/\*\*(.*?)\*\*/g, '<h3>$1</h3>')
-            .replace(/-\s(.*?)\n/g, '<li>$1</li>');     
-
-        analysisHTML = `<ul>${analysisHTML}</ul>`.replace(/<h3>(.*?)<\/h3>/g, '</ul><h3>$1</h3><ul>');
-
-        analysisHTML += `
-            <div class="result-section">
-                <h3>AI-Improved Resume</h3>
-                <textarea id="improvedResumeOutput" readonly>${apiResponse.improvedResume}</textarea>
-                <br><br>
-                <button class="btn" onclick="copyImprovedResume()">Copy Improved Resume</button>
-                <span id="copyMessage" style="margin-left: 10px; color: var(--success-color); display: none;">Copied!</span>
-            </div>
-        `;
-
-        resultsContainer.innerHTML = analysisHTML;
-    } catch (err) {
-        loadingState.style.display = 'none';
-        resultsContainer.style.display = 'block';
-        resultsContainer.innerHTML = `<div style="color:red;">${err.message}</div>`;
+        }).catch(err => {
+            console.error('Failed to copy text using modern method: ', err);
+            // Fallback to the older method if the modern one fails
+            try {
+                textarea.select();
+                textarea.setSelectionRange(0, 99999); // For mobile
+                document.execCommand('copy');
+                const copyMessage = document.getElementById('copyMessage');
+                if(copyMessage) {
+                    copyMessage.style.display = 'inline';
+                    setTimeout(() => { copyMessage.style.display = 'none'; }, 2000);
+                }
+            } catch (fallbackErr) {
+                console.error('Fallback copy method also failed: ', fallbackErr);
+            }
+        });
     }
-});
 
-// Copy Improved Resume function
-function copyImprovedResume() {
-    const textarea = document.getElementById('improvedResumeOutput');
-    textarea.select();
-    document.execCommand('copy');
-    const msg = document.getElementById('copyMessage');
-    msg.style.display = 'inline';
-    setTimeout(() => { msg.style.display = 'none'; }, 2000);
-}
-</script>
+    // Main function to fetch and display analysis
+    async function fetchAnalysis() {
+        const loadingState = document.getElementById('loadingState');
+        const resultsContainer = document.getElementById('resultsContainer');
+        
+        // Reading data from localStorage using your preferred keys
+        const resume = localStorage.getItem('resume');
+        const jd = localStorage.getItem('jobDescription');
+
+        try {
+            if (!resume || !jd) {
+                throw new Error('Resume or Job Description data not found. Please go back to the homepage and submit again.');
+            }
+
+            // Call the serverless function
+            const response = await fetch('/api/analyze', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ resume: resume, jobDescription: jd })
+            });
+
+            const responseText = await response.text();
+
+            if (!response.ok) {
+                let errorMsg = 'An unknown server error occurred.';
+                try {
+                    const errorJson = JSON.parse(responseText);
+                    errorMsg = errorJson.error || errorMsg;
+                } catch (e) {
+                    errorMsg = responseText || errorMsg;
+                }
+                throw new Error(errorMsg);
+            }
+
+            const apiResponse = JSON.parse(responseText);
+
+            // Hide loading state and show results
+            loadingState.style.display = 'none';
+            resultsContainer.style.display = 'block';
+
+            // Render the results
+            let analysisHTML = `<h1>Analysis Results</h1>`;
+            analysisHTML += apiResponse.analysis
+                .replace(/\*\*(.*?)\*\*/g, '<h3>$1</h3>')
+                .replace(/-\s(.*?)(?:\n|$)/g, '<li>$1</li>');
+
+            analysisHTML += `
+                <div class="result-section">
+                    <h3>AI-Improved Resume</h3>
+                    <textarea id="improvedResumeOutput" readonly>${apiResponse.improvedResume}</textarea>
+                    <br><br>
+                    <button class="btn" onclick="copyImprovedResume()">Copy Improved Resume</button>
+                    <span id="copyMessage" style="margin-left: 10px; display: none;">Copied!</span>
+                </div>
+            `;
+            
+            resultsContainer.innerHTML = analysisHTML;
+
+        } catch (error) {
+            console.error('Fetch error:', error);
+            loadingState.style.display = 'none';
+            resultsContainer.style.display = 'block';
+            resultsContainer.innerHTML = `<h1 style="color: #ef4444;">Analysis Failed</h1><p style="text-align: center; color: var(--text-secondary);">Error: ${error.message}</p>`;
+        } finally {
+            // Always clean up localStorage, whether success or failure
+            localStorage.removeItem('resume');
+            localStorage.removeItem('jobDescription');
+        }
+    }
+
+    // Use DOMContentLoaded for faster execution
+    document.addEventListener('DOMContentLoaded', fetchAnalysis);
+
+        </script>
 </body>
 </html>
