@@ -1,0 +1,6 @@
+[build]
+  functions = "functions/"
+
+[functions]
+  # Set the timeout to 25 seconds for all functions
+  timeout = 25
