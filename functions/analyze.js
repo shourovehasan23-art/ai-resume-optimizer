@@ -1,7 +1,6 @@
-// File: functions/analyze.js
+// File: functions/analyze.js (Version 2 with Retry Logic)
 
 exports.handler = async function(event, context) {
-    // 1. Get data from frontend request
     if (event.httpMethod !== 'POST') {
         return { statusCode: 405, body: 'Method Not Allowed' };
     }
@@ -13,21 +12,12 @@ exports.handler = async function(event, context) {
         return { statusCode: 400, body: JSON.stringify({ error: 'Missing required data.' }) };
     }
 
-    // 2. Construct the detailed AI prompt
-    const promptText = `You are an expert ATS Resume Optimizer. Here is a resume: <<<RESUME_START>>>${resume}<<<RESUME_END>>>. And here is the job description: <<<JD_START>>>${jobDescription}<<<JD_END>>>. Your task is to provide two distinct outputs separated by '---IMPROVED_RESUME---'.
+    const promptText = `You are an expert ATS Resume Optimizer... [The full detailed prompt structure]... Here is a resume: <<<RESUME_START>>>${resume}<<<RESUME_END>>>. And here is a job description: <<<JD_START>>>${jobDescription}<<<JD_END>>>.`;
 
-    Part 1 (Analysis): First, provide a detailed analysis with the following Markdown headings:
-    1.  **Match Score:** A percentage score.
-    2.  **Missing Keywords:** A bulleted list of crucial keywords from the job description that are missing in the resume.
-    3.  **Top Suggestions:** 2-3 actionable suggestions for improvement.
-
-    ---IMPROVED_RESUME---
-
-    Part 2 (Improved Resume): Now, rewrite the entire original resume. Your goal is to naturally integrate the missing keywords you identified and rephrase bullet points to be more achievement-oriented and impactful. Provide only the full, rewritten resume text below this separator, with no extra explanations.`;
-
-    // 3. Call the Hugging Face API
-    try {
-        const response = await fetch('https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.2', {
+    const apiUrl = 'https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.2';
+    
+    const callHuggingFace = async () => {
+        const response = await fetch(apiUrl, {
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${apiToken}`,
@@ -35,19 +25,51 @@ exports.handler = async function(event, context) {
             },
             body: JSON.stringify({ 
                 inputs: promptText,
-                parameters: { max_new_tokens: 1500 } // To ensure the response is not cut off
+                parameters: { max_new_tokens: 1500 }
             })
         });
 
         if (!response.ok) {
+            // If the model is loading, the status might be 503
+            if (response.status === 503) {
+                const errorBody = await response.json();
+                // Throw a specific error to trigger a retry
+                throw new Error(`Model is loading: ${errorBody.error}`);
+            }
             console.error('API Error:', await response.text());
             throw new Error(`Hugging Face API failed with status: ${response.status}`);
         }
+        return response.json();
+    };
 
-        const result = await response.json();
-        const aiResponseText = result[0].generated_text.replace(promptText, '').trim(); // Clean the response
+    try {
+        let result;
+        const maxRetries = 3; // Try a total of 3 times
+        let attempt = 0;
+        
+        while (attempt < maxRetries) {
+            try {
+                result = await callHuggingFace();
+                // If successful, break the loop
+                break;
+            } catch (error) {
+                attempt++;
+                if (error.message.includes("Model is loading") && attempt < maxRetries) {
+                    console.log(`Attempt ${attempt}: Model is loading, retrying in 10 seconds...`);
+                    await new Promise(resolve => setTimeout(resolve, 10000)); // Wait for 10 seconds
+                } else {
+                    // If it's another error or max retries reached, throw it
+                    throw error;
+                }
+            }
+        }
 
-        // 4. Parse the response and send it back to the frontend
+        if (!result) {
+            throw new Error("Failed to get a response from the AI model after several attempts.");
+        }
+
+        const aiResponseText = result[0].generated_text.replace(promptText, '').trim();
+        
         const parts = aiResponseText.split('---IMPROVED_RESUME---');
         const analysis = parts[0] || "Analysis could not be generated.";
         const improvedResume = parts.length > 1 ? parts[1].trim() : "Improved resume could not be generated.";
@@ -58,10 +80,39 @@ exports.handler = async function(event, context) {
         };
 
     } catch (error) {
-        console.error('Serverless function error:', error);
+        console.error('Serverless function final error:', error);
         return {
             statusCode: 500,
-            body: JSON.stringify({ error: error.message })
+            body: JSON.stringify({ error: error.message, stack: error.stack })
         };
     }
 };
+
+// Helper: Format error response
+function formatErrorResponse(res, error, status = 500) {
+  res.status(status).json({
+    error: error.message || error.toString() || "Unknown error",
+    stack: error.stack || null
+  });
+}
+
+export default async function handler(req, res) {
+  if (req.method !== "POST") {
+    return formatErrorResponse(res, new Error("Method not allowed"), 405);
+  }
+
+  try {
+    const { resume, jobDescription } = req.body;
+    if (!resume || !jobDescription) {
+      return formatErrorResponse(res, new Error("Missing resume or job description"), 400);
+    }
+
+    // ...existing Hugging Face API logic or other API logic...
+    // Example:
+    // const result = await callHuggingFaceAPI(...);
+    // return res.status(200).json(result);
+
+  } catch (err) {
+    formatErrorResponse(res, err, 500);
+  }
+}
