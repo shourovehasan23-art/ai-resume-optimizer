@@ -237,9 +237,9 @@ li { margin-bottom: 0.7em; font-size: 1.1em; }
         const loadingState = document.getElementById('loadingState');
         const resultsContainer = document.getElementById('resultsContainer');
         
-        // Reading data from localStorage using your preferred keys
-        const resume = localStorage.getItem('resume');
-        const jd = localStorage.getItem('jobDescription');
+    // LocalStorage থেকে ডেটা পড়া
+    const resume = localStorage.getItem('resume');
+    const jd = localStorage.getItem('jobDescription');
 
         try {
             if (!resume || !jd) {
