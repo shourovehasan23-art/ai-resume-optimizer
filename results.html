@@ -247,7 +247,7 @@ li { margin-bottom: 0.7em; font-size: 1.1em; }
             }
 
             // Call the serverless function
-            const response = await fetch('/api/analyze', {
+            const response = await fetch('/functions/analyze.js', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ resume: resume, jobDescription: jd })
