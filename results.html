@@ -4,307 +4,264 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI ATS Resume Optimizer - Results</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        /* Full-screen loading overlay */
+        :root {
+            --primary-color: #9f7aea;
+            --secondary-color: #ed64a6;
+            --background-start: #1e1b4b;
+            --background-end: #0c0a2e;
+            --card-background: rgba(26, 32, 44, 0.9);
+            --text-primary: #ffffff;
+            --text-secondary: #a0aec0;
+            --success-color: #48bb78;
+            --error-color: #ef4444;
+            --border-color: rgba(255, 255, 255, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, var(--background-start), var(--background-end));
+            min-height: 100vh;
+            color: var(--text-primary);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+        }
+
         .loading-overlay {
             position: fixed;
-            top: 0; left: 0; width: 100vw; height: 100vh;
-            background: radial-gradient(circle at 50% 70%, #a78bfa 0%, #7c3aed 40%, #4f46e5 100%);
-            z-index: 9999;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(8px);
+            z-index: 1000;
             display: flex;
-            align-items: center;
             justify-content: center;
-            animation: fadeInBg 0.8s;
+            align-items: center;
+            flex-direction: column;
         }
-        @keyframes fadeInBg {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
+
         .loading-card {
-            background: rgba(34, 34, 54, 0.95);
-            border-radius: 40px;
-            box-shadow: 0 0 80px 0 #a78bfa, 0 0 160px 0 #7c3aed;
-            padding: 48px 0;
-            min-width: 600px;
-            max-width: 90vw;
+            background: rgba(41, 37, 66, 0.95);
+            border-radius: 20px;
+            padding: 3rem;
             text-align: center;
-            color: #fff;
-            font-family: 'Inter', sans-serif;
-            animation: fadeInCard 1s cubic-bezier(.4,0,.2,1);
+            box-shadow: 0 0 50px rgba(159, 122, 234, 0.3);
         }
-        @keyframes fadeInCard {
-            from { opacity: 0; transform: scale(0.96); }
-            to { opacity: 1; transform: scale(1); }
-        }
-        .loading-card h1 {
-            font-size: 2.8rem;
-            font-weight: 800;
-            margin: 0;
-            letter-spacing: 1px;
-        }
+
         .glow-loader {
-            width: 80px;
-            height: 80px;
+            width: 60px;
+            height: 60px;
+            margin: 0 auto 2rem auto;
             border-radius: 50%;
-            margin: 36px auto 0 auto;
-            background: radial-gradient(circle at 60% 40%, #a78bfa 0%, #7c3aed 60%, #4f46e5 100%);
-            box-shadow: 0 0 60px 20px #a78bfa, 0 0 120px 40px #7c3aed;
-            animation: glowPulse 1.8s infinite alternate;
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            animation: pulse 1.5s ease-in-out infinite;
         }
-        /* Animated glowing loader for analysis section */
-        .glow-loader {
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            margin: 30px auto 0 auto;
-            background: radial-gradient(circle at 60% 40%, #a78bfa 0%, #7c3aed 60%, #4f46e5 100%);
-            box-shadow: 0 0 60px 20px #a78bfa, 0 0 120px 40px #7c3aed;
-            animation: glowPulse 1.8s infinite alternate;
+
+        @keyframes pulse {
+            0% { transform: scale(0.95); opacity: 0.7; }
+            50% { transform: scale(1.05); opacity: 1; }
+            100% { transform: scale(0.95); opacity: 0.7; }
         }
-        @keyframes glowPulse {
-            0% { box-shadow: 0 0 60px 20px #a78bfa, 0 0 120px 40px #7c3aed; opacity: 0.7; }
-            100% { box-shadow: 0 0 90px 30px #a78bfa, 0 0 180px 60px #7c3aed; opacity: 1; }
+
+        .container {
+            max-width: 800px;
+            width: 100%;
+            background: var(--card-background);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 2.5rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
         }
-       /* --- START: NEW ABSTRACT PURPLE THEME CSS --- */
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+        
+        h1, h2, h3 {
+            color: var(--text-primary);
+            margin-bottom: 1.5rem;
+        }
 
-:root {
-  --primary-color: #9f7aea; /* Light Purple */
-  --secondary-color: #ed64a6; /* Pinkish */
-  --background-color: #2d3748; /* Dark Grey Blue */
-  --card-background: rgba(26, 32, 44, 0.7); /* Semi-transparent dark card */
-  --text-primary: #ffffff;
-  --text-secondary: #a0aec0; /* Light Grey */
-  --border-color: rgba(255, 255, 255, 0.2);
-  --success-color: #48bb78;
-}
+        h1 { text-align: center; }
 
-* {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-}
+        .analysis-section {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .analysis-section ul {
+            list-style-type: none;
+            padding-left: 0;
+        }
 
-body {
-    font-family: 'Poppins', sans-serif;
-    background-color: #41295a; /* Fallback color */
-    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1600 900'%3e%3cdefs%3e%3cradialGradient id='a' cx='352' cy='432' r='400' gradientUnits='userSpaceOnUse'%3e%3cstop offset='0' stop-color='%23A94FF7'/%3e%3cstop offset='1' stop-color='%2341295a'/%3e%3c/radialGradient%3e%3cradialGradient id='b' cx='1250' cy='250' r='500' gradientUnits='userSpaceOnUse'%3e%3cstop offset='0' stop-color='%23C32E95'/%3e%3cstop offset='1' stop-color='%2341295a'/%3e%3c/radialGradient%3e%3cradialGradient id='c' cx='800' cy='600' r='400' gradientUnits='userSpaceOnUse'%3e%3cstop offset='0' stop-color='%23A94FF7'/%3e%3cstop offset='1' stop-color='%2341295a'/%3e%3c/radialGradient%3e%3c/defs%3e%3crect fill='url(%23a)' width='1600' height='900'/%3e%3crect fill='url(%23b)' width='1600' height='900'/%3e%3crect fill='url(%23c)' width='1600' height='900'/%3e%3c/svg%3e");
-    background-size: cover;
-    color: var(--text-primary);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-    padding: 20px;
-}
+        .analysis-section li {
+            padding-left: 1.5em;
+            text-indent: -1.5em;
+            margin-bottom: 0.7em;
+        }
 
-.container {
-    width: 100%;
-    max-width: 800px;
-    background-color: var(--card-background);
-    border: 1px solid var(--border-color);
-    backdrop-filter: blur(20px); /* Frosted glass effect */
-    border-radius: 20px;
-    box-shadow: 0 10px 50px rgba(0, 0, 0, 0.3);
-    padding: 40px 50px;
-    opacity: 0;
-    transform: translateY(20px) scale(0.98);
-    animation: fadeIn 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
-}
+        .analysis-section li::before {
+            content: '⚡️';
+            margin-right: 0.5em;
+        }
 
-@keyframes fadeIn {
-    to {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-    }
-}
+        .improved-resume {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 1.5rem;
+        }
 
-h1 { text-align: center; font-size: 2.5em; font-weight: 700; margin-bottom: 0.5em; }
-.subheading { text-align: center; color: var(--text-secondary); margin-bottom: 2.5em; font-size: 1.1em; }
-h3 { font-size: 1.5em; margin-bottom: 0.8em; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5em;}
+        textarea {
+            width: 100%;
+            min-height: 300px;
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-primary);
+            padding: 1rem;
+            font-family: 'Poppins', sans-serif;
+            margin-bottom: 1rem;
+            resize: vertical;
+        }
 
-.form-group { margin-bottom: 2em; }
-label { display: block; margin-bottom: 0.5em; font-weight: 600; color: var(--text-secondary); }
+        .btn {
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
 
-textarea {
-    width: 100%;
-    min-height: 200px;
-    padding: 15px;
-    border-radius: 10px;
-    border: 1px solid var(--border-color);
-    background-color: rgba(0, 0, 0, 0.25);
-    color: var(--text-primary);
-    font-family: 'Poppins', sans-serif;
-    font-size: 1em;
-    transition: all 0.3s ease;
-}
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(159, 122, 234, 0.4);
+        }
 
-textarea:focus {
-    outline: none;
-    border-color: var(--primary-color);
-    box-shadow: 0 0 0 3px rgba(159, 122, 234, 0.5);
-}
+        #copyMessage {
+            color: var(--success-color);
+            margin-left: 1rem;
+            display: none;
+            font-weight: 600;
+        }
 
-.btn-container { text-align: center; }
-
-.btn {
-    background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
-    color: white;
-    border: none;
-    padding: 15px 30px;
-    font-size: 1.1em;
-    font-weight: 600;
-    border-radius: 10px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-}
-
-.btn:hover {
-    transform: translateY(-3px) scale(1.05);
-    box-shadow: 0 7px 25px rgba(237, 100, 166, 0.3);
-}
-
-.btn:active { transform: scale(0.98); }
-
-.spinner { display: none; margin: 20px auto; width: 40px; height: 40px; border: 4px solid rgba(255, 255, 255, 0.2); border-left-color: var(--primary-color); border-radius: 50%; animation: spin 1s linear infinite; }
-@keyframes spin { to { transform: rotate(360deg); } }
-
-/* For results.html page */
-.results-container { display: none; opacity: 0; animation: fadeIn 1s ease-out forwards; }
-.result-section { margin-bottom: 2.5em; }
-ul { list-style-position: inside; padding-left: 0; }
-li { margin-bottom: 0.7em; font-size: 1.1em; }
-#improvedResumeOutput { min-height: 300px; }
-#copyMessage { margin-left: 10px; color: var(--success-color); font-weight: 600; }
-/* --- END: NEW ABSTRACT PURPLE THEME CSS --- */
+        .error-message {
+            color: var(--error-color);
+            text-align: center;
+            padding: 2rem;
+        }
     </style>
 </head>
 <body>
-    <div id="loadingOverlay" class="loading-overlay" style="display: none;">
+    <div id="loadingOverlay" class="loading-overlay">
         <div class="loading-card">
-            <h1>Analysis Results</h1>
             <div class="glow-loader"></div>
+            <h2>Analyzing Your Documents</h2>
+            <p style="color: var(--text-secondary);">Please wait while our AI works its magic...</p>
         </div>
     </div>
 
-    <div class="container">
-        <h1>Analysis Results</h1>
-        <div id="loadingState">
-            <div class="glow-loader"></div>
-            <h2 style="color: var(--text-light);">Our AI is analyzing your resume...</h2>
-        </div>
-
-        <div id="resultsContainer" class="results-container">
-            <!-- Analysis will be injected here by JavaScript -->
-        </div>
+    <div class="container" id="resultsContainer" style="display: none;">
+        <!-- Results will be injected here by JavaScript -->
     </div>
 
-        <script>
-   
-    // This function will be called by the button's onclick attribute.
-    function copyImprovedResume() {
-        const textarea = document.getElementById('improvedResumeOutput');
-        if (!textarea) return;
-
-        // Modern and more reliable way to copy to clipboard
-        navigator.clipboard.writeText(textarea.value).then(() => {
+    <script>
+        function copyImprovedResume() {
+            const textarea = document.getElementById('improvedResumeOutput');
             const copyMessage = document.getElementById('copyMessage');
-            if(copyMessage) {
-                copyMessage.style.display = 'inline';
-                setTimeout(() => { copyMessage.style.display = 'none'; }, 2000);
-            }
-        }).catch(err => {
-            console.error('Failed to copy text using modern method: ', err);
-            // Fallback to the older method if the modern one fails
-            try {
-                textarea.select();
-                textarea.setSelectionRange(0, 99999); // For mobile
-                document.execCommand('copy');
-                const copyMessage = document.getElementById('copyMessage');
-                if(copyMessage) {
+
+            if (!textarea || !navigator.clipboard) return;
+
+            navigator.clipboard.writeText(textarea.value)
+                .then(() => {
+                    copyMessage.innerText = 'Copied!';
                     copyMessage.style.display = 'inline';
                     setTimeout(() => { copyMessage.style.display = 'none'; }, 2000);
-                }
-            } catch (fallbackErr) {
-                console.error('Fallback copy method also failed: ', fallbackErr);
-            }
-        });
-    }
-
-    // Main function to fetch and display analysis
-    async function fetchAnalysis() {
-        const loadingState = document.getElementById('loadingState');
-        const resultsContainer = document.getElementById('resultsContainer');
-        
-    // LocalStorage থেকে ডেটা পড়া
-    const resume = localStorage.getItem('resume');
-    const jd = localStorage.getItem('jobDescription');
-
-        try {
-            if (!resume || !jd) {
-                throw new Error('Resume or Job Description data not found. Please go back to the homepage and submit again.');
-            }
-
-            // Call the serverless function
-            const response = await fetch('/functions/analyze.js', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ resume: resume, jobDescription: jd })
-            });
-
-            const responseText = await response.text();
-
-            if (!response.ok) {
-                let errorMsg = 'An unknown server error occurred.';
-                try {
-                    const errorJson = JSON.parse(responseText);
-                    errorMsg = errorJson.error || errorMsg;
-                } catch (e) {
-                    errorMsg = responseText || errorMsg;
-                }
-                throw new Error(errorMsg);
-            }
-
-            const apiResponse = JSON.parse(responseText);
-
-            // Hide loading state and show results
-            loadingState.style.display = 'none';
-            resultsContainer.style.display = 'block';
-
-            // Render the results
-            let analysisHTML = `<h1>Analysis Results</h1>`;
-            analysisHTML += apiResponse.analysis
-                .replace(/\*\*(.*?)\*\*/g, '<h3>$1</h3>')
-                .replace(/-\s(.*?)(?:\n|$)/g, '<li>$1</li>');
-
-            analysisHTML += `
-                <div class="result-section">
-                    <h3>AI-Improved Resume</h3>
-                    <textarea id="improvedResumeOutput" readonly>${apiResponse.improvedResume}</textarea>
-                    <br><br>
-                    <button class="btn" onclick="copyImprovedResume()">Copy Improved Resume</button>
-                    <span id="copyMessage" style="margin-left: 10px; display: none;">Copied!</span>
-                </div>
-            `;
-            
-            resultsContainer.innerHTML = analysisHTML;
-
-        } catch (error) {
-            console.error('Fetch error:', error);
-            loadingState.style.display = 'none';
-            resultsContainer.style.display = 'block';
-            resultsContainer.innerHTML = `<h1 style="color: #ef4444;">Analysis Failed</h1><p style="text-align: center; color: var(--text-secondary);">Error: ${error.message}</p>`;
-        } finally {
-            // Always clean up localStorage, whether success or failure
-            localStorage.removeItem('resume');
-            localStorage.removeItem('jobDescription');
+                })
+                .catch(err => {
+                    console.error('Failed to copy text: ', err);
+                    copyMessage.innerText = 'Failed!';
+                    copyMessage.style.color = 'var(--error-color)';
+                    copyMessage.style.display = 'inline';
+                });
         }
-    }
 
-    // Use DOMContentLoaded for faster execution
-    document.addEventListener('DOMContentLoaded', fetchAnalysis);
+        async function fetchAnalysis() {
+            const resultsContainer = document.getElementById('resultsContainer');
+            const loadingOverlay = document.getElementById('loadingOverlay');
 
-        </script>
+            try {
+                const resume = localStorage.getItem('resume');
+                const jobDescription = localStorage.getItem('jobDescription');
+
+                if (!resume || !jobDescription) {
+                    throw new Error('Resume or Job Description data not found. Please go back to the homepage and submit again.');
+                }
+                
+                // *** THIS IS THE CORRECTED LINE FOR VERCEL ***
+                const response = await fetch('/api/analyze', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ resume, jobDescription })
+                });
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(errorText || 'Analysis failed due to a server error.');
+                }
+                
+                const data = await response.json();
+
+                // Format and display results
+                let analysisHTML = `<h1>Analysis Results</h1>`;
+                analysisHTML += `<div class="analysis-section">`;
+                analysisHTML += data.analysis
+                    .replace(/\*\*(.*?)\*\*/g, '<h3>$1</h3>')
+                    .replace(/-\s(.*?)(?:\n|$)/g, '<li>$1</li>')
+                    .replace(/<h3>(.*?)<\/h3>/g, '</div><div class="analysis-section"><h3>$1</h3>') // Wrap each section
+                    .replace(/<\/li><li>/g, '</li><li>') // Clean up list items
+                    .replace(/<\/li><br>/g, '</li>');
+                analysisHTML += `</div>`;
+
+
+                resultsContainer.innerHTML = analysisHTML + `
+                    <div class="improved-resume">
+                        <h2>AI-Improved Resume</h2>
+                        <textarea id="improvedResumeOutput" readonly>${data.improvedResume}</textarea>
+                        <button class="btn" onclick="copyImprovedResume()">Copy Improved Resume</button>
+                        <span id="copyMessage"></span>
+                    </div>
+                `;
+
+            } catch (error) {
+                console.error('Error during analysis:', error);
+                resultsContainer.innerHTML = `
+                    <div class="error-message">
+                        <h1>Analysis Failed</h1>
+                        <p style="color: var(--text-secondary); margin-bottom: 2rem;">${error.message}</p>
+                        <button class="btn" onclick="window.location.href='index.html'">Try Again</button>
+                    </div>
+                `;
+            } finally {
+                loadingOverlay.style.display = 'none';
+                resultsContainer.style.display = 'block';
+                localStorage.removeItem('resume');
+                localStorage.removeItem('jobDescription');
+            }
+        }
+        
+        document.addEventListener('DOMContentLoaded', fetchAnalysis);
+    </script>
 </body>
-</html>
+</html> 
