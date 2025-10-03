@@ -1,11 +1,5 @@
 {
   "name": "ai-resume-optimizer",
   "version": "1.0.0",
-  "description": "An AI-powered ATS resume optimizer tool.",
-  "main": "index.html",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "author": "",
-  "license": "ISC"
+  "description": "An AI-powered ATS resume optimizer tool."
 }
