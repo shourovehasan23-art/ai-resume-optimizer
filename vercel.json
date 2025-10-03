@@ -1,13 +1,7 @@
 {
   "functions": {
-    "functions/analyze.js": {
+    "functions/**/*.js": {
       "maxDuration": 60
     }
-  },
-  "rewrites": [
-    {
-      "source": "/api/:path*",
-      "destination": "/functions/:path*"
-    }
-  ]
+  }
 }
