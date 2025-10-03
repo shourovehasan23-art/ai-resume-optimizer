@@ -1,4 +1,4 @@
-// File: api/analyze.js (Final Victorious Version for Hugging Face on Vercel)
+// File: api/analyze.js (Final Debugging Version - Complete Code)
 
 export default async function handler(request, response) {
     if (request.method !== 'POST') {
@@ -6,10 +6,12 @@ export default async function handler(request, response) {
     }
 
     try {
+        // --- START: DEBUGGING BLOCK ---
         const HUGGINGFACE_API_KEY = process.env.HUGGINGFACE_API_KEY;
         if (!HUGGINGFACE_API_KEY) {
-            throw new Error("Server configuration error: API key is missing.");
+            return response.status(500).json({ error: "CRITICAL ERROR: API Key not found on the server. Please check Vercel environment variables." });
         }
+        // --- END: DEBUGGING BLOCK ---
 
         const { resume, jobDescription } = request.body;
         if (!resume || !jobDescription) {
@@ -27,7 +29,6 @@ export default async function handler(request, response) {
 
         Part 2 (Improved Resume): Now, rewrite the entire original resume. Your goal is to naturally integrate the missing keywords you identified and rephrase bullet points to be more achievement-oriented and impactful. Provide only the full, rewritten resume text below this separator, with no extra explanations.`;
         
-        // *** IMPORTANT CHANGE: Using a more reliable model endpoint ***
         const apiUrl = 'https://api-inference.huggingface.co/models/HuggingFaceH4/zephyr-7b-beta';
 
         const apiResponse = await fetch(apiUrl, {
@@ -38,7 +39,7 @@ export default async function handler(request, response) {
             },
             body: JSON.stringify({
                 inputs: promptText,
-                parameters: { max_new_tokens: 1500 } // Removed 'return_full_text'
+                parameters: { max_new_tokens: 1500 }
             }),
         });
 
@@ -50,7 +51,6 @@ export default async function handler(request, response) {
 
         const result = await apiResponse.json();
         
-        // Manually clean the prompt from the response
         let aiResponseText = result[0]?.generated_text;
         if (aiResponseText && aiResponseText.startsWith(promptText)) {
             aiResponseText = aiResponseText.substring(promptText.length).trim();
