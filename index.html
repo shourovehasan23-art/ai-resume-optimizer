@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI ATS Resume Optimizer - Home</title>
+    <style>
+        /* --- START: NEW CSS CODE --- */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+
+:root {
+  --primary-color: #6d28d9; /* Deep Purple */
+  --secondary-color: #db2777; /* Fuchsia */
+  --background-start: #1e1b4b; /* Dark Indigo */
+  --background-end: #0c0a2e; /* Even Darker Indigo */
+  --card-background: rgba(255, 255, 255, 0.05);
+  --text-primary: #f9f9f9;
+  --text-secondary: #a7a2d4;
+  --border-color: rgba(255, 255, 255, 0.1);
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Poppins', sans-serif; /* Creative Font */
+    background: linear-gradient(135deg, var(--background-start), var(--background-end));
+    color: var(--text-primary);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        padding: 20px;
+        overflow: auto; /* Allow vertical scroll */
+}
+
+/* Optional: Adding some cool background shapes */
+body::before, body::after {
+    content: '';
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    z-index: -1;
+}
+body::before {
+    width: 300px;
+    height: 300px;
+    background: var(--primary-color);
+    top: -100px;
+    left: -100px;
+}
+body::after {
+    width: 400px;
+    height: 400px;
+    background: var(--secondary-color);
+    bottom: -150px;
+    right: -150px;
+}
+
+.container {
+    width: 100%;
+    max-width: 800px;
+    background-color: var(--card-background);
+    border: 1px solid var(--border-color);
+    backdrop-filter: blur(10px); /* Frosted glass effect */
+    border-radius: 20px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    padding: 40px 50px;
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeIn 0.8s ease-out forwards;
+        margin: 0 auto; /* Center the container */
+}
+
+@keyframes fadeIn {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+h1 {
+    text-align: center;
+    font-size: 2.5em;
+    font-weight: 700;
+    margin-bottom: 0.5em;
+    animation: fadeIn 0.8s ease-out 0.2s forwards;
+    opacity: 0;
+    transform: translateY(20px);
+}
+
+.subheading {
+    text-align: center;
+    color: var(--text-secondary);
+    margin-bottom: 2.5em;
+    font-size: 1.1em;
+    animation: fadeIn 0.8s ease-out 0.4s forwards;
+    opacity: 0;
+    transform: translateY(20px);
+}
+
+.form-group {
+    margin-bottom: 2em;
+}
+
+label {
+    display: block;
+    margin-bottom: 0.5em;
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
+textarea {
+    width: 100%;
+    min-height: 200px;
+    padding: 15px;
+    border-radius: 10px;
+    border: 1px solid var(--border-color);
+    background-color: rgba(0, 0, 0, 0.2);
+    color: var(--text-primary);
+    font-family: 'Poppins', sans-serif;
+    font-size: 1em;
+    transition: all 0.3s ease;
+}
+
+textarea:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(109, 40, 217, 0.5);
+}
+
+.btn-container {
+    text-align: center;
+}
+
+.btn {
+    background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+    color: white;
+    border: none;
+    padding: 15px 30px;
+    font-size: 1.1em;
+    font-weight: 600;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+}
+
+.btn:hover {
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: 0 7px 25px rgba(219, 39, 119, 0.3);
+}
+
+.btn:active {
+    transform: scale(0.98);
+}
+
+.spinner {
+    display: none;
+    margin: 20px auto;
+    width: 40px;
+    height: 40px;
+    border: 4px solid rgba(255, 255, 255, 0.2);
+    border-left-color: var(--primary-color);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+/* --- END: NEW CSS CODE --- */
+    </style>
+</head>
+<body>
+
+    <main class="container">
+        <h1>AI ATS Resume Optimizer</h1>
+        <p class="subheading">Boost your chances of getting noticed. Let our AI optimize your resume for any job.</p>
+
+        <form id="resumeForm">
+            <div class="form-group">
+                <label for="resumeInput">Your Resume</label>
+                <textarea id="resumeInput" placeholder="Paste your resume text here..."></textarea>
+            </div>
+            <div class="form-group">
+                <label for="jdInput">Job Description</label>
+                <textarea id="jdInput" placeholder="Paste the job description text here..."></textarea>
+            </div>
+            <div class="btn-container">
+                <button type="submit" class="btn" id="analyzeBtn">Analyze Resume</button>
+            </div>
+        </form>
+        <div class="spinner" id="loadingSpinner"></div>
+        <p id="errorMessage" style="color: red; text-align: center; margin-top: 1em; display: none;"></p>
+    </main>
+
+    <script>
+        document.getElementById('resumeForm').addEventListener('submit', function(event) {
+            event.preventDefault(); // Prevent default form submission
+
+            const resume = document.getElementById('resumeInput').value;
+            const jd = document.getElementById('jdInput').value;
+            const button = document.getElementById('analyzeBtn');
+            const spinner = document.getElementById('loadingSpinner');
+            const errorMessage = document.getElementById('errorMessage');
+
+            if (!resume || !jd) {
+                errorMessage.innerText = 'Please fill out both fields.';
+                errorMessage.style.display = 'block';
+                return;
+            }
+
+            // Show spinner and disable button
+            spinner.style.display = 'block';
+            button.disabled = true;
+            button.innerText = 'Analyzing...';
+            errorMessage.style.display = 'none';
+
+            // Store data in localStorage to pass to the next page
+            localStorage.setItem('resumeData', resume);
+            localStorage.setItem('jdData', jd);
+
+            // Redirect to the results page
+            window.location.href = 'results.html';
+        });
+    </script>
+</body>
+</html>
