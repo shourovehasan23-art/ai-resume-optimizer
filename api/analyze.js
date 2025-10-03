@@ -1,25 +1,22 @@
-// File: api/analyze.js (Final Version based on your feedback)
+// File: api/analyze.js (Final Vercel Compatible Version)
 
-const DEEPSEEK_API_KEY = "sk-baf267ea3377438ab9a81a6ce2144c6e";
-
-exports.handler = async function(event, context) {
-    if (event.httpMethod !== 'POST') {
-        return { statusCode: 405, body: 'Method Not Allowed' };
+export default async function handler(request, response) {
+    if (request.method !== 'POST') {
+        return response.status(405).send('Method Not Allowed');
     }
 
     try {
-        // Check for API key existence
+        const DEEPSEEK_API_KEY = process.env.DEEPSEEK_API_KEY;
         if (!DEEPSEEK_API_KEY) {
             throw new Error("Server configuration error: API key is missing.");
         }
 
-        const { resume, jobDescription } = JSON.parse(event.body);
+        const { resume, jobDescription } = request.body;
         if (!resume || !jobDescription) {
-            return { statusCode: 400, body: JSON.stringify({ error: 'Resume or Job Description is missing.' }) };
+            return response.status(400).json({ error: 'Resume or Job Description is missing.' });
         }
 
-        // The complete and structured prompt
-        const promptText = `You are an expert ATS Resume Optimizer. Here is a resume: <<<RESUME_START>>>${resume}<<<RESUME_END>>>. And here is the job description: <<<JD_START>>>${jobDescription}<<<JD_END>>>. Your task is to provide two distinct outputs separated by '---IMPROVED_RESUME---'.
+        const promptText = `You are an expert ATS Resume Optimizer. Here is a resume: <<<RESUME_START>>>${resume}<<<RESUME_END>>>. And here is a job description: <<<JD_START>>>${jobDescription}<<<JD_END>>>. Your task is to provide two distinct outputs separated by '---IMPROVED_RESUME---'.
 
         Part 1 (Analysis): First, provide a detailed analysis with the following Markdown headings:
         1.  **Match Score:** A percentage score.
@@ -30,7 +27,7 @@ exports.handler = async function(event, context) {
 
         Part 2 (Improved Resume): Now, rewrite the entire original resume. Your goal is to naturally integrate the missing keywords you identified and rephrase bullet points to be more achievement-oriented and impactful. Provide only the full, rewritten resume text below this separator, with no extra explanations.`;
 
-        const response = await fetch("https://api.deepseek.com/chat/completions", {
+        const apiResponse = await fetch("https://api.deepseek.com/chat/completions", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -46,15 +43,13 @@ exports.handler = async function(event, context) {
             }),
         });
 
-        if (!response.ok) {
-            const errorData = await response.json();
-            // Safer error message access
-            const errorMessage = errorData.error?.message || `DeepSeek API failed with status: ${response.status}`;
+        if (!apiResponse.ok) {
+            const errorData = await apiResponse.json();
+            const errorMessage = errorData.error?.message || `DeepSeek API failed with status: ${apiResponse.status}`;
             throw new Error(errorMessage);
         }
 
-        const result = await response.json();
-        // Safer response content access
+        const result = await apiResponse.json();
         const aiResponseText = result.choices?.[0]?.message?.content;
 
         if (!aiResponseText) {
@@ -65,16 +60,11 @@ exports.handler = async function(event, context) {
         const analysis = parts[0] || "Analysis could not be generated.";
         const improvedResume = parts.length > 1 ? parts[1].trim() : "Improved resume could not be generated.";
 
-        return {
-            statusCode: 200,
-            body: JSON.stringify({ analysis: analysis, improvedResume: improvedResume }),
-        };
+        // Send successful response
+        response.status(200).json({ analysis, improvedResume });
 
     } catch (error) {
         console.error("Serverless function error:", error);
-        return { 
-            statusCode: 500, 
-            body: JSON.stringify({ error: error.message || "An unknown server error occurred." }) 
-        };
+        response.status(500).json({ error: error.message || "An unknown server error occurred." });
     }
-};
+}
