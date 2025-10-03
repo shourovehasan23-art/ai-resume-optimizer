@@ -201,112 +201,60 @@ li { margin-bottom: 0.7em; font-size: 1.1em; }
     </div>
 
     <script>
-        // Show loading overlay when analysis starts
-        function showLoadingOverlay() {
-            document.getElementById('loadingOverlay').style.display = 'flex';
-        }
-        function hideLoadingOverlay() {
-            document.getElementById('loadingOverlay').style.display = 'none';
-        }
-        function copyImprovedResume() {
-    const textarea = document.getElementById('improvedResumeOutput');
-    // Clipboard API ব্যবহার করুন
-    navigator.clipboard.writeText(textarea.value)
-        .then(() => {
-            const copyMessage = document.getElementById('copyMessage');
-            copyMessage.style.display = 'inline';
-            setTimeout(() => { copyMessage.style.display = 'none'; }, 2000);
-        })
-        .catch(() => {
-            alert('কপি করতে সমস্যা হয়েছে। ম্যানুয়ালি কপি করুন।');
-        });
-}
+       // --- START: REPLACE THE CODE INSIDE THE 'try' BLOCK ---
 
-async function fetchAnalysis() {
-    const resume = localStorage.getItem('resumeData');
-    const jd = localStorage.getItem('jdData');
-    const loadingState = document.getElementById('loadingState');
-    const resultsContainer = document.getElementById('resultsContainer');
-    showLoadingOverlay();
+const response = await fetch('/api/analyze', { // Vercel uses /api/ directory
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+        resume: resume,
+        jobDescription: jd
+    })
+});
 
-    if (!resume || !jd) {
-        hideLoadingOverlay();
-        loadingState.innerHTML = '<h2 style="color: red;">Error: Could not find resume data. Please go back and try again.</h2>';
-        resultsContainer.style.display = 'none';
-        return;
-    }
+const responseText = await response.text(); // Read response as TEXT first
 
+if (!response.ok) {
+    // Try to parse error message if possible
+    let errorMsg = 'Something went wrong on the server.';
     try {
-        const response = await fetch('/.netlify/functions/analyze', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                resume: resume,
-                jobDescription: jd
-            })
-        });
-
-        let apiResponse;
-        let text = await response.text();
-        if (!text) {
-            throw new Error('Server did not return any data. Please try again later.');
-        }
-        try {
-            apiResponse = JSON.parse(text);
-        } catch (jsonErr) {
-            throw new Error('Server response is not valid JSON.');
-        }
-
-        if (!response.ok) {
-            throw new Error(apiResponse.error || 'Something went wrong on the server.');
-        }
-
-        // Hide loading overlay and show results
-        loadingState.style.display = 'none';
-        hideLoadingOverlay();
-        resultsContainer.style.display = 'block';
-        resultsContainer.style.opacity = '0';
-        setTimeout(() => {
-            resultsContainer.style.opacity = '1';
-        }, 50);
-
-        // Markdown থেকে HTML কনভার্ট করুন
-        let analysisHTML = apiResponse.analysis
-            ? apiResponse.analysis.replace(/\*\*(.*?)\*\*/g, '<h3>$1</h3>') // Bold to h3
-                .replace(/-\s(.*?)\n/g, '<li>$1</li>') // Bullet points to li
-            : '<span style="color:red;">No analysis data returned.</span>';
-        analysisHTML = `<ul>${analysisHTML}</ul>`.replace(/<h3>(.*?)<\/h3>/g, '</ul><h3>$1</h3><ul>');
-
-        analysisHTML += `
-            <div class="result-section">
-                <h3>AI-Improved Resume</h3>
-                <textarea id="improvedResumeOutput" readonly>${apiResponse.improvedResume || ''}</textarea>
-                <br><br>
-                <button class="btn" onclick="copyImprovedResume()">Copy Improved Resume</button>
-                <span id="copyMessage" style="margin-left: 10px; color: var(--success-color); display: none;">Copied!</span>
-            </div>
-        `;
-        resultsContainer.innerHTML = analysisHTML;
-
-    } catch (error) {
-        hideLoadingOverlay();
-        resultsContainer.style.display = 'none';
-        loadingState.innerHTML = `<h2 style="color: red;">Error: ${error.message}</h2>`;
-        console.error('Fetch error:', error);
+        const errorJson = JSON.parse(responseText);
+        errorMsg = errorJson.error || errorMsg;
+    } catch (e) {
+        // If parsing fails, use the raw text
+        errorMsg = responseText || errorMsg;
     }
-
-    // Clear localStorage
-    localStorage.removeItem('resumeData');
-    localStorage.removeItem('jdData');
+    throw new Error(errorMsg);
 }
 
-        // Run the analysis when the page loads
-window.onload = function() {
-    showLoadingOverlay(); // Show overlay as soon as page loads
-    fetchAnalysis();
-}
+const apiResponse = JSON.parse(responseText); // Now, parse the text to JSON
+
+loadingState.style.display = 'none';
+resultsContainer.style.display = 'block';
+
+// ... (The rest of the code for displaying results remains the same) ...
+
+let analysisHTML = apiResponse.analysis
+    .replace(/\*\*(.*?)\*\*/g, '<h3>$1</h3>')
+    .replace(/-\s(.*?)\n/g, '<li>$1</li>');     
+
+analysisHTML = `<ul>${analysisHTML}</ul>`.replace(/<h3>(.*?)<\/h3>/g, '</ul><h3>$1</h3><ul>');
+
+analysisHTML += `
+    <div class="result-section">
+        <h3>AI-Improved Resume</h3>
+        <textarea id="improvedResumeOutput" readonly>${apiResponse.improvedResume}</textarea>
+        <br><br>
+        <button class="btn" onclick="copyImprovedResume()">Copy Improved Resume</button>
+        <span id="copyMessage" style="margin-left: 10px; color: var(--success-color); display: none;">Copied!</span>
+    </div>
+`;
+
+resultsContainer.innerHTML = analysisHTML;
+
+// --- END: REPLACE THE CODE INSIDE THE 'try' BLOCK ---
     </script>
 </body>
 </html>
